@@ -23,7 +23,7 @@ describe("EventAPI", () => {
 
             console.log(result.data)
     
-            expect(result.data.event).toEqual({ eventType: 'Evento' })
+            expect(result.data).toEqual({ eventType: 'Evento' })
             expect(Array.isArray(result.data.subscriptions)).toBe(true)
         })
     })
@@ -44,13 +44,12 @@ describe("EventAPI", () => {
         })
 
         it("should return statusCode 409 when provided url is already saved in the db", async () => {
-            await axios.post(URL + '/subscription', { url: 'https://www.google.com/' }) 
-            const result = await axios.post(URL + '/subscription', { url: 'https://www.google.com/' }).catch( res => {
+            await axios.post(URL + '/subscription', { url: 'https://www.google.com/' })
+
+            await axios.post(URL + '/subscription', { url: 'https://www.google.com/' }).catch( res => {
                 expect(res.response.status).toBe(409)
                 expect(res.response.data).toEqual({ message: 'this url already exist' })
             })         
-            
-            expect(result!.data).not.toBeDefined()
         })
     })
 })

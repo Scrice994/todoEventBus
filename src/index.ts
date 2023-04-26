@@ -37,6 +37,12 @@ app.post('/subscription', async (req, res) => {
         return res.status(400).json({ message: 'invalid url provided' })
     }
 
+    const findUrl = await SUB_CRUD.readOne({eventHandlerURI: url})
+
+    if('response' in findUrl.data){
+        return res.status(409).json({ message: 'this url already exist' })
+    }
+
     const saveUri = await SUB_CRUD.create({eventHandlerURI: url})
 
     if('response' in saveUri.data){

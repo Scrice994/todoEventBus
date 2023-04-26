@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import { Subscription } from '../../src/entities/mongo/subscriptionSchema'
+import { Subscription } from '../../../src/entities/mongo/subscriptionSchema'
 
 let mongo: MongoMemoryServer | null = null;
 

@@ -4,6 +4,11 @@ import { IDataStorage } from "src/dataStorage/IDataStorage";
 
 export class SubscriptionRepository implements IRepository<SubscriptionEntity>{
     constructor(private _dataStorage: IDataStorage<SubscriptionEntity>){}
+    async getOneByKey(obj: { [key: string]: unknown; }): Promise<SubscriptionEntity> {
+        const result = await this._dataStorage.findOneByKey(obj)
+
+        return result
+    }
 
     async insertOne(newEntity: Omit<SubscriptionEntity, "id">): Promise<SubscriptionEntity> {
         const result = await this._dataStorage.create(newEntity)

@@ -1,7 +1,7 @@
 import { connectFakeDB, dropFakeDB, dropFakeCollections } from "./mongoDataStorageSetup";
-import { Subscription } from "../../src/entities/mongo/subscriptionSchema"
-import { SubscriptionEntity } from "../../src/entities/SubscriptionEntity";
-import { MongoDataStorage } from '../../src/dataStorage/MongoDataStorage'
+import { Subscription } from "../../../src/entities/mongo/subscriptionSchema"
+import { SubscriptionEntity } from "../../../src/entities/SubscriptionEntity";
+import { MongoDataStorage } from '../../../src/dataStorage/MongoDataStorage'
 
 describe('MongoDataStorage', () => {
 
@@ -32,11 +32,20 @@ describe('MongoDataStorage', () => {
         it("Should return the element with  property equal to the given parameter", async () => {
             const createEntity = await DATA_STORAGE.create({ eventHandlerURI: 'testURI' })
 
-            const findElement = await DATA_STORAGE.findOne({ eventHandlerURI: 'testURI' })
-
-            console.log(findElement)
+            const findElement = await DATA_STORAGE.findOneByKey({ eventHandlerURI: 'testURI' })
 
             expect(findElement).toEqual(createEntity)
+        })
+    })
+
+    describe('find()', () => {
+        it("should find all elements in the storage", async () => {
+            const createEntity = await DATA_STORAGE.create({ eventHandlerURI: 'testURI' })
+            const createEntity2 = await DATA_STORAGE.create({ eventHandlerURI: 'testURI2' })
+
+            const findElements = await DATA_STORAGE.find({})
+
+            expect(findElements).toEqual([createEntity, createEntity2])
         })
     })
 })

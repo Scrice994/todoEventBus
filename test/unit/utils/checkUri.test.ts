@@ -1,4 +1,4 @@
-import { checkUri } from '../../src/utils/common/checkUri'
+import { checkUri } from '../../../src/utils/common/checkUri'
 
 describe('checkUri', () => {
     it("should return true if the given param is a valid url", () => {
