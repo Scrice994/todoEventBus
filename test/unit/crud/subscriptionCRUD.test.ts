@@ -8,7 +8,7 @@ describe("subscriptionCRUD", () => {
 
     describe("create()", () => {
 
-        it("should save the url in a repository", async () => {
+        it("should call insertOne() from the repository and return obj with statusCode 200 if no error occour", async () => {
             REPOSITORY.insertOne.mockImplementationOnce(() => Promise.resolve({ eventHandlerURI: 'testUri', id: 'testId' }))
 
             const createURL = await CRUD.create({ eventHandlerURI: 'testUri' });
@@ -16,16 +16,60 @@ describe("subscriptionCRUD", () => {
             expect(createURL.statusCode).toBe(200)
             expect(createURL.data).toEqual({ response: { eventHandlerURI: 'testUri', id: 'testId' }})
         })
+
+        it("should return an obj with statusCode 500 and errorMessage when an error occour", async () => {
+            REPOSITORY.insertOne.mockImplementationOnce(() => { throw new Error("TestError") })
+
+            const createURL = await CRUD.create({ eventHandlerURI: 'testUri' });
+
+            expect(createURL.statusCode).toBe(500)
+            expect(createURL.data).toEqual({ message: 'TestError' })
+        })
     })
 
     describe("getOne()", () => {
-        it("should call getOneByKey() from the repository and return right obj if no error occour", async () => {
+        it("should call getOneByKey() from the repository and return obj with statusCode 200 if no error occour", async () => {
             REPOSITORY.getOneByKey.mockImplementationOnce(() => Promise.resolve({ eventHandlerURI: 'testUri', id: 'testId' }))
             
             const findUrl = await CRUD.readOne({eventHandlerURI: 'testUri'})
 
             expect(findUrl.statusCode).toBe(200)
             expect(findUrl.data).toEqual({ response: { eventHandlerURI: 'testUri', id: 'testId' }})
+        })
+
+        it("should return an obj with statusCode 500 and errorMessage when an error occour", async () => {
+            REPOSITORY.getOneByKey.mockImplementationOnce(() => { throw new Error("TestError") })
+
+            const createURL = await CRUD.readOne({ eventHandlerURI: 'testUri' });
+
+            expect(createURL.statusCode).toBe(500)
+            expect(createURL.data).toEqual({ message: 'TestError' })
+        })
+    })
+
+    describe("read()", () => {
+        it("should call getAll() from the repository and return obj with statusCode 200 in no error occour", async () => {
+            REPOSITORY.getAll.mockImplementationOnce(() => Promise.resolve([
+                { eventHandlerURI: 'testUri', id: 'testId' },    
+                { eventHandlerURI: 'testUri2', id: 'testId2' },    
+            ]))
+
+            const findAllUrl = await CRUD.read({})
+
+            expect(findAllUrl.statusCode).toBe(200)
+            expect(findAllUrl.data).toEqual({ response: [
+                { eventHandlerURI: 'testUri', id: 'testId' },    
+                { eventHandlerURI: 'testUri2', id: 'testId2' },     
+            ] })
+        })
+
+        it("should return an obj with statusCode 500 and errorMessage when an error occour", async () => {
+            REPOSITORY.getAll.mockImplementationOnce(() => { throw new Error("TestError") })
+
+            const createURL = await CRUD.read({ eventHandlerURI: 'testUri' });
+
+            expect(createURL.statusCode).toBe(500)
+            expect(createURL.data).toEqual({ message: 'TestError' })
         })
     })
 })

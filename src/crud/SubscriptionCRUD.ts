@@ -4,6 +4,16 @@ import { IRepository } from "src/repository/IRepository";
 
 export class SubscriptionCRUD implements ICRUD<SubscriptionEntity>{
     constructor(private _repository: IRepository<SubscriptionEntity>){}
+
+    async read(obj: { [key: string]: unknown; }): Promise<ICRUDResponse<SubscriptionEntity[]>> {
+        try {
+            const result = await this._repository.getAll(obj)
+            return this.successfullResponse(result)
+        } catch (error) {
+            return this.errorResponse(error)
+        }
+    }
+
     async readOne(obj: { [key: string]: unknown; }): Promise<ICRUDResponse<SubscriptionEntity>> {
         try {
             const result = await this._repository.getOneByKey(obj)

@@ -23,7 +23,7 @@ describe("EventAPI", () => {
 
             console.log(result.data)
     
-            expect(result.data).toEqual({ eventType: 'Evento' })
+            expect(result.data.event).toEqual({ eventType: 'Evento' })
             expect(Array.isArray(result.data.subscriptions)).toBe(true)
         })
     })

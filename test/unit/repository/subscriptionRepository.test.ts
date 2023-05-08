@@ -24,4 +24,20 @@ describe("subcriptionREPOSITORY", () => {
             expect(findSubscription).toEqual({ eventHandlerURI: 'testUri', id: 'testId' })
         })
     })
+
+    describe("getAll()", () => {
+        it("should call find() from the dataStorage and return the result", async () => {
+            mockStorage.find.mockImplementationOnce(() => Promise.resolve([
+                { eventHandlerURI: 'testUri', id: 'testId' },
+                { eventHandlerURI: 'testUri2', id: 'testId2' },
+            ]))
+
+            const findSubscriptions = await REPOSITORY.getAll({})
+
+            expect(findSubscriptions).toEqual([
+                { eventHandlerURI: 'testUri', id: 'testId' },
+                { eventHandlerURI: 'testUri2', id: 'testId2' },
+            ])
+        })
+    })
 })

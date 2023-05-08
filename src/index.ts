@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import axios from 'axios'
 import { MongoDataStorage } from './dataStorage/MongoDataStorage'
 import { SubscriptionRepository } from './repository/SubscriptionRepository'
 import { SubscriptionCRUD } from './crud/SubscriptionCRUD'
@@ -20,12 +21,27 @@ app.get('/', (req, res) => {
     res.json({message: 'Event Bus up!!!'})
 })
 
-app.post('/events', (req, res) => {
+app.post('/events', async (req, res) => {
     const event = req.body
 
     console.log(event)
 
-    res.json(event)
+    const subscriptions = await SUB_CRUD.read({})
+
+    console.log(subscriptions)
+
+    if ('response' in subscriptions.data){
+
+        Promise.all(
+            subscriptions.data.response.map( async subscription => {
+                await axios.post(subscription.eventHandlerURI, { event })
+            }
+        )
+)
+        return res.status(200).json({ event, subscriptions: subscriptions.data.response })
+    }
+
+    return res.status(subscriptions.statusCode).json({ message: subscriptions.data.message })
 })
 
 app.post('/subscription', async (req, res) => {
