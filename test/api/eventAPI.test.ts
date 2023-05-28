@@ -36,10 +36,10 @@ describe("EventAPI", () => {
             expect(result.data).toEqual('https://www.google.com/')
         })
     
-        it("should return 400 statusCode when an invalid url is provided", async () => {
+        it("should return 404 statusCode when an invalid url is provided", async () => {
             await axios.post(URL + '/subscription', { url: 'testUrl' }).catch(res => {
-                expect(res.response.status).toBe(400)
-                expect(res.response.data).toEqual({ message: 'invalid url provided' })
+                expect(res.response.status).toBe(404)
+                expect(res.response.data).toEqual({ message: 'Invalid @parameter url' })
             })
         })
 

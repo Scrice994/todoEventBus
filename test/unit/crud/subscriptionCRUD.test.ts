@@ -9,18 +9,25 @@ describe("subscriptionCRUD", () => {
     describe("create()", () => {
 
         it("should call insertOne() from the repository and return obj with statusCode 200 if no error occour", async () => {
-            REPOSITORY.insertOne.mockImplementationOnce(() => Promise.resolve({ eventHandlerURI: 'testUri', id: 'testId' }))
+            REPOSITORY.insertOne.mockImplementationOnce(() => Promise.resolve({ eventHandlerURI: 'https://www.google.com/', id: 'testId' }))
 
+            const createURL = await CRUD.create({ eventHandlerURI: 'https://www.google.com/' });
+            console.log(createURL)
+            expect(createURL.statusCode).toBe(200)
+            expect(createURL.data).toEqual({ response: { eventHandlerURI: 'https://www.google.com/', id: 'testId' }})
+        })
+
+        it("should return statusCode 404 and errorMessage if invalid url is provided", async () => {
             const createURL = await CRUD.create({ eventHandlerURI: 'testUri' });
 
-            expect(createURL.statusCode).toBe(200)
-            expect(createURL.data).toEqual({ response: { eventHandlerURI: 'testUri', id: 'testId' }})
+            expect(createURL.statusCode).toBe(404)
+            expect(createURL.data).toEqual({ message: 'Invalid @parameter url' })
         })
 
         it("should return an obj with statusCode 500 and errorMessage when an error occour", async () => {
             REPOSITORY.insertOne.mockImplementationOnce(() => { throw new Error("TestError") })
 
-            const createURL = await CRUD.create({ eventHandlerURI: 'testUri' });
+            const createURL = await CRUD.create({ eventHandlerURI: 'https://www.google.com/' });
 
             expect(createURL.statusCode).toBe(500)
             expect(createURL.data).toEqual({ message: 'TestError' })

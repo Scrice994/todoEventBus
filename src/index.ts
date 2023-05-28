@@ -1,13 +1,12 @@
 import express from 'express'
 import cors from 'cors'
-import axios from 'axios'
 import { MongoDataStorage } from './dataStorage/MongoDataStorage'
 import { SubscriptionRepository } from './repository/SubscriptionRepository'
 import { SubscriptionCRUD } from './crud/SubscriptionCRUD'
 import { Subscription } from './entities/mongo/subscriptionSchema'
 import { connectDatabase } from './utils/common/connectDatabase'
-import { checkUri } from './utils/common/checkUri'
-
+import { HttpClient } from './utils/common/HttpClient'
+import axios from 'axios'
 
 const SUB_REPOSITORY = new SubscriptionRepository(new MongoDataStorage(Subscription))
 const SUB_CRUD = new SubscriptionCRUD(SUB_REPOSITORY)
@@ -15,8 +14,10 @@ const SUB_CRUD = new SubscriptionCRUD(SUB_REPOSITORY)
 const app = express()
 
 app.use(express.json())
-app.use(cors()
-)
+app.use(cors())
+
+const httpClient = new HttpClient()
+
 app.get('/', (req, res) => {
     res.json({message: 'Event Bus up!!!'})
 })
@@ -33,8 +34,12 @@ app.post('/events', async (req, res) => {
     if ('response' in subscriptions.data){
 
         Promise.all(
-            subscriptions.data.response.map( async subscription => {
-                await axios.post(subscription.eventHandlerURI, { event })
+            subscriptions.data.response.map(async subscription => {
+                try {
+                    await httpClient.sendRequest(subscription.eventHandlerURI, { method: 'post', body: event})
+                } catch (error) {
+                    console.log(error)
+                }
             }
         )
 )
@@ -47,25 +52,17 @@ app.post('/events', async (req, res) => {
 app.post('/subscription', async (req, res) => {
     const { url } = req.body
 
-    const urlValidation = checkUri(url)
-
-    if(!urlValidation){
-        return res.status(400).json({ message: 'invalid url provided' })
-    }
-
     const findUrl = await SUB_CRUD.readOne({eventHandlerURI: url})
-
     if('response' in findUrl.data){
         return res.status(409).json({ message: 'this url already exist' })
     }
 
     const saveUri = await SUB_CRUD.create({eventHandlerURI: url})
-
     if('response' in saveUri.data){
         return res.status(saveUri.statusCode).json(saveUri.data.response.eventHandlerURI)
     }
 
-    return res.status(saveUri.statusCode).json(saveUri.data.message)
+    return res.status(saveUri.statusCode).json(saveUri.data)
 })
 
 connectDatabase().then(() =>
